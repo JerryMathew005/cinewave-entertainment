@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  database:
+    image: mysql:8.0
+    container_name: cinewave-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: cinewave_db
+      MYSQL_USER: cinewave_user
+      MYSQL_PASSWORD: cinewave_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    networks:
+      - cinewave-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cinewave-backend
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/cinewave_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: cinewave_user
+      SPRING_DATASOURCE_PASSWORD: cinewave_password
+      CINEWAVE_JWT_SECRET: CineWaveSuperSecretKeyForJwtAuthenticationTokensGenerationAndValidation2026!
+      CINEWAVE_CORS_ALLOWED_ORIGINS: http://localhost,http://localhost:80,http://localhost:5173,http://localhost:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - cinewave-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cinewave-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - cinewave-network
+
+volumes:
+  db_data:
+
+networks:
+  cinewave-network:
+    driver: bridge
