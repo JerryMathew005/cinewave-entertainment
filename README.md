@@ -5,9 +5,11 @@
 [![React 19](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
 [![MySQL 8](https://img.shields.io/badge/MySQL-8.0-orange.svg)](https://www.mysql.com/)
 [![Vite](https://img.shields.io/badge/Vite-8.2-purple.svg)](https://vitejs.dev/)
-[![Design Theme](https://img.shields.io/badge/Theme-Cinema%20Blue-0284C7.svg)](#design-theme)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-JerryMathew005%2Fcinewave--entertainment-181717.svg?logo=github)](https://github.com/JerryMathew005/cinewave-entertainment)
 
 **CineWave Entertainment** is a production-ready, full-stack Movie Ticket Booking Management web application inspired by the business and functional requirements of a Pega Movie Ticket Booking Management case lifecycle. It is built from scratch with custom architecture, implementing all required user stories (**US-001 through US-010**), concurrency protections, a background SLA engine, show-type automatic routing, interactive tiered seat selection, digital QR e-tickets, and role-based administration.
+
+- **GitHub Repository**: [https://github.com/JerryMathew005/cinewave-entertainment](https://github.com/JerryMathew005/cinewave-entertainment)
 
 ---
 
