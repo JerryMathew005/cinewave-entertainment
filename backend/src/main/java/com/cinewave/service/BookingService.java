@@ -58,7 +58,7 @@ public class BookingService {
     /**
      * US-001 & US-002: Submit Movie Ticket Request with concurrency protection
      */
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     public BookingResponseDTO createBookingRequest(BookingRequestDTO request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
