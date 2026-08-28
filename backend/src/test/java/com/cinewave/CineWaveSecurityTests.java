@@ -30,6 +30,25 @@ public class CineWaveSecurityTests {
     }
 
     @Test
+    @DisplayName("Admin BCrypt hash should verify correctly against secure credentials")
+    void testAdminCredentialsHashing() {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        String sampleSecret = System.getenv().getOrDefault("ADMIN_PASSWORD", "CineWaveSecurePassword@2026");
+        String hash = encoder.encode(sampleSecret);
+        assertTrue(encoder.matches(sampleSecret, hash));
+    }
+
+    @Test
+    @DisplayName("OTP 6-digit cryptographic hash test")
+    void testOtpHashing() {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        String otp = "749201";
+        String hash = encoder.encode(otp);
+        assertTrue(encoder.matches(otp, hash));
+        assertFalse(encoder.matches("123456", hash));
+    }
+
+    @Test
     @DisplayName("JWT Token Provider should generate and validate tokens")
     void testJwtTokenGenerationAndValidation() {
         String secret = "CineWaveEntertainmentSuperSecureSecretKey2026WithMinimum256BitsLengthForHmacSHA256";

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Film, User, Mail, Lock, Phone } from 'lucide-react';
+import { Film, User, Mail, Lock, Phone, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -10,18 +10,34 @@ const Register = () => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('CUSTOMER');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const passwordsMatch = password && confirmPassword && password === confirmPassword;
+  const passwordsMismatch = confirmPassword && password !== confirmPassword;
+  const isPasswordValid = password.length >= 6;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match. Please verify your entries.');
+      return;
+    }
+
+    setLoading(true);
     try {
-      await register({ name, email, password, phone, role });
+      await register({ name, email, password, confirmPassword, phone, role });
       navigate('/');
     } catch (err) {
       console.error('Registration error', err);
@@ -39,7 +55,7 @@ const Register = () => {
       justifyContent: 'center',
       padding: '3rem 1.5rem'
     }}>
-      <div className="card" style={{ width: '100%', maxWidth: '460px', padding: '2.5rem 2rem' }}>
+      <div className="card" style={{ width: '100%', maxWidth: '480px', padding: '2.5rem 2rem' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
@@ -64,7 +80,7 @@ const Register = () => {
 
         {error && <ErrorMessage message={error} />}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label className="form-label">Full Name</label>
             <div style={{ position: 'relative' }}>
@@ -73,7 +89,7 @@ const Register = () => {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="John Doe"
+                placeholder="Jerry Mathew"
                 className="form-input"
                 style={{ paddingLeft: '2.5rem' }}
               />
@@ -89,7 +105,7 @@ const Register = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="john@example.com"
+                placeholder="name@example.com"
                 className="form-input"
                 style={{ paddingLeft: '2.5rem' }}
               />
@@ -122,11 +138,44 @@ const Register = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 6 characters"
-                className="form-input"
+                className={`form-input ${password && !isPasswordValid ? 'is-invalid' : ''}`}
                 style={{ paddingLeft: '2.5rem' }}
               />
               <Lock size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: '#94A3B8' }} />
             </div>
+            {password && !isPasswordValid && (
+              <span className="invalid-feedback">Password must be at least 6 characters long.</span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Confirm Password</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter password"
+                className={`form-input ${passwordsMismatch ? 'is-invalid' : passwordsMatch ? 'is-valid' : ''}`}
+                style={{ paddingLeft: '2.5rem' }}
+              />
+              <Lock size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: '#94A3B8' }} />
+              {passwordsMatch && (
+                <CheckCircle2 size={16} style={{ position: 'absolute', right: '12px', top: '13px', color: '#10B981' }} />
+              )}
+              {passwordsMismatch && (
+                <AlertCircle size={16} style={{ position: 'absolute', right: '12px', top: '13px', color: '#EF4444' }} />
+              )}
+            </div>
+            {passwordsMismatch && (
+              <span className="invalid-feedback">Passwords do not match.</span>
+            )}
+            {passwordsMatch && (
+              <span style={{ display: 'block', fontSize: '0.75rem', color: '#10B981', marginTop: '0.25rem', fontWeight: '500' }}>
+                Passwords match perfectly.
+              </span>
+            )}
           </div>
 
           <div className="form-group">
@@ -143,11 +192,18 @@ const Register = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (confirmPassword && !passwordsMatch)}
             className="btn btn-primary btn-lg"
             style={{ width: '100%', marginTop: '0.5rem' }}
           >
-            {loading ? 'Creating Account...' : 'Register'}
+            {loading ? (
+              <>
+                <Loader2 size={18} className="spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                Creating Account...
+              </>
+            ) : (
+              'Register Account'
+            )}
           </button>
         </form>
 

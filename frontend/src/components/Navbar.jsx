@@ -102,6 +102,14 @@ const Navbar = () => {
           }}>
             Showtimes
           </Link>
+          <Link to="/contact" style={{
+            fontSize: '0.925rem',
+            fontWeight: '500',
+            color: isActive('/contact') ? '#38BDF8' : '#E2E8F0',
+            transition: 'color 0.2s'
+          }}>
+            Contact
+          </Link>
 
           {isAuthenticated && (
             <>
@@ -317,6 +325,7 @@ const Navbar = () => {
             <Link to="/movies" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFFFFF', padding: '0.5rem 0' }}>Movies</Link>
             <Link to="/theatres" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFFFFF', padding: '0.5rem 0' }}>Theatres</Link>
             <Link to="/shows" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFFFFF', padding: '0.5rem 0' }}>Showtimes</Link>
+            <Link to="/contact" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFFFFF', padding: '0.5rem 0' }}>Contact</Link>
             {isAuthenticated && (
               <>
                 <Link to="/my-bookings" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFFFFF', padding: '0.5rem 0' }}>My Bookings</Link>

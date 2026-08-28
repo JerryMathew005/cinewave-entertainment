@@ -56,4 +56,9 @@ public class MovieDTO {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public boolean getIsSeries() {
+        return (genre != null && (genre.toLowerCase().contains("series") || genre.toLowerCase().contains("tv")))
+                || (description != null && description.toLowerCase().contains("series"));
+    }
 }

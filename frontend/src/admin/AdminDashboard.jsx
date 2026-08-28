@@ -12,7 +12,8 @@ import {
   TrendingUp,
   Tag,
   Clock,
-  Shuffle
+  Shuffle,
+  MessageSquare
 } from 'lucide-react';
 import adminService from '../services/adminService';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -201,6 +202,18 @@ const AdminDashboard = () => {
             <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>Manage Users</h3>
             <p style={{ fontSize: '0.8125rem', color: '#64748B', margin: 0 }}>
               View registered users, assign roles (Customer, Staff, System Admin).
+            </p>
+          </div>
+        </Link>
+
+        <Link to="/admin/messages" className="card card-clickable" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+          <div style={{ backgroundColor: '#E0F2FE', color: '#0284C7', padding: '0.75rem', borderRadius: '10px' }}>
+            <MessageSquare size={22} />
+          </div>
+          <div>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>Contact Inquiries</h3>
+            <p style={{ fontSize: '0.8125rem', color: '#64748B', margin: 0 }}>
+              Review messages sent through the Contact Us form and send direct email replies.
             </p>
           </div>
         </Link>

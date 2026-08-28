@@ -1,9 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Clock, Globe } from 'lucide-react';
+import { Star, Clock, Globe, Tv, Film } from 'lucide-react';
 
 const MovieCard = ({ movie }) => {
   if (!movie) return null;
+
+  const isSeries = movie.isSeries ||
+    (movie.genre && movie.genre.toLowerCase().includes('series')) ||
+    (movie.title && movie.title.toLowerCase().includes('chosen'));
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'NOW_SHOWING':
+        return <span className="badge badge-primary">Now Showing</span>;
+      case 'COMING_SOON':
+        return <span className="badge badge-warning">Coming Soon</span>;
+      case 'ARCHIVED':
+        return <span className="badge" style={{ backgroundColor: '#E2E8F0', color: '#475569' }}>Archived</span>;
+      default:
+        return <span className="badge badge-primary">{status}</span>;
+    }
+  };
 
   return (
     <div className="card card-clickable" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -42,11 +59,14 @@ const MovieCard = ({ movie }) => {
           <span>{movie.rating ? Number(movie.rating).toFixed(1) : '8.5'}</span>
         </div>
 
-        {/* Status Badge */}
-        <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-          <span className={`badge ${movie.status === 'NOW_SHOWING' ? 'badge-primary' : 'badge-warning'}`}>
-            {movie.status === 'NOW_SHOWING' ? 'Now Showing' : 'Coming Soon'}
-          </span>
+        {/* Badges on Top Left */}
+        <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {getStatusBadge(movie.status)}
+          {isSeries && (
+            <span className="badge badge-purple" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <Tv size={12} /> TV / Web Series
+            </span>
+          )}
         </div>
       </div>
 
@@ -79,11 +99,18 @@ const MovieCard = ({ movie }) => {
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginTop: 'auto' }}>
-          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#0284C7', backgroundColor: '#E0F2FE', padding: '3px 8px', borderRadius: '4px' }}>
+          <span style={{
+            fontSize: '0.75rem',
+            fontWeight: '600',
+            color: isSeries ? '#7E22CE' : '#0284C7',
+            backgroundColor: isSeries ? '#F3E8FF' : '#E0F2FE',
+            padding: '3px 8px',
+            borderRadius: '4px'
+          }}>
             {movie.genre}
           </span>
           <Link to={`/movies/${movie.id}`} className="btn btn-primary btn-sm">
-            {movie.status === 'NOW_SHOWING' ? 'Book Tickets' : 'View Details'}
+            {movie.status === 'NOW_SHOWING' ? (isSeries ? 'View Episodes & Shows' : 'Book Tickets') : 'View Details'}
           </Link>
         </div>
       </div>

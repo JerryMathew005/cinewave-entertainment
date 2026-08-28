@@ -143,11 +143,20 @@ const Login = () => {
             </div>
           </div>
 
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.25rem', marginTop: '-0.5rem' }}>
+            <Link
+              to="/forgot-password"
+              style={{ fontSize: '0.8125rem', color: '#0284C7', fontWeight: '600', transition: 'color 0.2s' }}
+            >
+              Forgot Password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
             className="btn btn-primary btn-lg"
-            style={{ width: '100%', marginTop: '0.5rem' }}
+            style={{ width: '100%' }}
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>

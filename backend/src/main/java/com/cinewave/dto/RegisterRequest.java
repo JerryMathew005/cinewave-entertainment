@@ -18,6 +18,8 @@ public class RegisterRequest {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
+    private String confirmPassword;
+
     private String phone;
 
     private Role role;
@@ -32,6 +34,9 @@ public class RegisterRequest {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public String getConfirmPassword() { return confirmPassword; }
+    public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }

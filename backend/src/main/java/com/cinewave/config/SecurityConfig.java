@@ -73,11 +73,14 @@ public class SecurityConfig {
             allowedList.add("https://cinewave-frontend.onrender.com");
         }
 
+        List<String> patterns = new java.util.ArrayList<>(allowedList);
+        patterns.add("https://*.onrender.com");
+
         if (allowedList.contains("*")) {
             configuration.setAllowedOriginPatterns(List.of("*"));
         } else {
             configuration.setAllowedOrigins(allowedList);
-            configuration.setAllowedOriginPatterns(allowedList);
+            configuration.setAllowedOriginPatterns(patterns);
         }
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
@@ -98,9 +101,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public Auth & Documentation & Health & Root
+                        // Public Auth, Documentation, Health, Contact & Root
                         .requestMatchers("/", "/api/health").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                         // Public Movies, Theatres, Shows, Seats, Coupons read

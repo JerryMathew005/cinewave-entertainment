@@ -156,7 +156,14 @@ const ManageMovies = () => {
                     </div>
                   </td>
                   <td>
-                    <strong>{m.title}</strong>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <strong>{m.title}</strong>
+                      {(m.isSeries || m.genre?.toLowerCase().includes('series') || m.title?.toLowerCase().includes('chosen')) && (
+                        <span className="badge badge-purple" style={{ fontSize: '0.65rem', padding: '1px 5px' }}>
+                          Series
+                        </span>
+                      )}
+                    </div>
                     <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{m.genre}</div>
                   </td>
                   <td>{m.language}</td>
@@ -167,8 +174,9 @@ const ManageMovies = () => {
                     </div>
                   </td>
                   <td>
-                    <span className={`badge ${m.status === 'NOW_SHOWING' ? 'badge-primary' : 'badge-warning'}`}>
-                      {m.status}
+                    <span className={`badge ${m.status === 'NOW_SHOWING' ? 'badge-primary' : m.status === 'COMING_SOON' ? 'badge-warning' : 'badge'}`}
+                          style={m.status === 'ARCHIVED' ? { backgroundColor: '#E2E8F0', color: '#475569' } : {}}>
+                      {m.status === 'NOW_SHOWING' ? 'Now Showing' : m.status === 'COMING_SOON' ? 'Coming Soon' : 'Archived'}
                     </span>
                   </td>
                   <td>

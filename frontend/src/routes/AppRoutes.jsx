@@ -15,6 +15,8 @@ import Notifications from '../pages/Notifications';
 import Wishlist from '../pages/Wishlist';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import ForgotPassword from '../pages/ForgotPassword';
+import Contact from '../pages/Contact';
 import Profile from '../pages/Profile';
 
 // Admin & Staff Pages
@@ -28,6 +30,7 @@ import ManageSLA from '../admin/ManageSLA';
 import ManageRouting from '../admin/ManageRouting';
 import Analytics from '../admin/Analytics';
 import ManageUsers from '../admin/ManageUsers';
+import ManageMessages from '../admin/ManageMessages';
 
 // Route Guards
 import ProtectedRoute from '../components/ProtectedRoute';
@@ -44,9 +47,11 @@ const AppRoutes = () => {
       <Route path="/seat-selection/:showId" element={<SeatSelection />} />
       <Route path="/booking-confirmation/:id" element={<BookingConfirmation />} />
 
-      {/* Authentication */}
+      {/* Authentication & Account Recovery */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/contact" element={<Contact />} />
 
       {/* Customer Protected Routes */}
       <Route
@@ -178,6 +183,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute roles={['ADMIN']}>
             <ManageUsers />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/messages"
+        element={
+          <ProtectedRoute roles={['ADMIN']}>
+            <ManageMessages />
           </ProtectedRoute>
         }
       />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Film, Heart, Shield, Award, Mail, Phone, MapPin } from 'lucide-react';
+import { Film, Heart, Shield, Award, Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -77,7 +77,16 @@ const Footer = () => {
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Mail size={16} color="#38BDF8" /> support@cinewave.com
+                <Mail size={16} color="#38BDF8" />
+                <a href="mailto:jerrymathew987@gmail.com" style={{ color: '#E2E8F0', textDecoration: 'none' }} title="Administrator Contact Email">
+                  jerrymathew987@gmail.com
+                </a>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <MessageSquare size={16} color="#38BDF8" />
+                <Link to="/contact" style={{ color: '#38BDF8', fontWeight: '600' }}>
+                  Contact Administration &rarr;
+                </Link>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Phone size={16} color="#38BDF8" /> +1 (800) 555-WAVE
