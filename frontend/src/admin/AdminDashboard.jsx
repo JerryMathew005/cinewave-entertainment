@@ -177,7 +177,7 @@ const AdminDashboard = () => {
           <div>
             <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>Auto-Routing (US-010)</h3>
             <p style={{ fontSize: '0.8125rem', color: '#64748B', margin: 0 }}>
-              Map show types (IMAX, 3D, Premium) to specialized staff response queues.
+              Map show types (IMAX, 3D, Premium) to specialized operations response queues.
             </p>
           </div>
         </Link>
@@ -201,7 +201,7 @@ const AdminDashboard = () => {
           <div>
             <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>Manage Users</h3>
             <p style={{ fontSize: '0.8125rem', color: '#64748B', margin: 0 }}>
-              View registered users, assign roles (Customer, Staff, System Admin).
+              View registered users, manage Customer accounts and Admin privileges.
             </p>
           </div>
         </Link>

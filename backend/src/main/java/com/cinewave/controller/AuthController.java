@@ -23,7 +23,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Register a new customer or staff account")
+    @Operation(summary = "Register a new customer account")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -43,9 +43,18 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    @Operation(summary = "Request a 6-digit password reset verification code via email")
+    @Operation(summary = "Request a 6-digit password reset verification code and link via email")
     public ResponseEntity<Map<String, Object>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         Map<String, Object> result = authService.forgotPassword(request);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/verify-reset-token")
+    @Operation(summary = "Verify password reset token or code validity without consuming it")
+    public ResponseEntity<Map<String, Object>> verifyResetToken(
+            @RequestParam(required = false) String email,
+            @RequestParam String token) {
+        Map<String, Object> result = authService.verifyResetToken(email, token);
         return ResponseEntity.ok(result);
     }
 

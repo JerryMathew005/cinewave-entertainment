@@ -72,4 +72,49 @@ public class CineWaveSecurityTests {
         assertTrue(jwtTokenProvider.validateToken(token));
         assertEquals("test@cinewave.com", jwtTokenProvider.getEmailFromToken(token));
     }
+
+    @Test
+    @DisplayName("PasswordResetToken entity should correctly evaluate expiry and attempts")
+    void testPasswordResetTokenExpiry() {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        String secureToken = java.util.UUID.randomUUID().toString().replace("-", "");
+        String otpHash = encoder.encode("582910");
+
+        com.cinewave.entity.PasswordResetToken activeToken = new com.cinewave.entity.PasswordResetToken(
+                "customer@cinewave.com",
+                secureToken,
+                otpHash,
+                java.time.LocalDateTime.now().plusMinutes(15)
+        );
+
+        assertFalse(activeToken.isExpired());
+        assertFalse(activeToken.isUsed());
+        assertEquals(0, activeToken.getAttempts());
+        assertEquals("customer@cinewave.com", activeToken.getEmail());
+        assertEquals(secureToken, activeToken.getToken());
+        assertTrue(encoder.matches("582910", activeToken.getOtpHash()));
+
+        com.cinewave.entity.PasswordResetToken expiredToken = new com.cinewave.entity.PasswordResetToken(
+                "customer@cinewave.com",
+                secureToken,
+                otpHash,
+                java.time.LocalDateTime.now().minusMinutes(1)
+        );
+        assertTrue(expiredToken.isExpired());
+    }
+
+    @Test
+    @DisplayName("ResetPasswordRequest should cleanly resolve token or OTP")
+    void testResetPasswordRequestResolution() {
+        com.cinewave.dto.ResetPasswordRequest requestWithToken = new com.cinewave.dto.ResetPasswordRequest();
+        requestWithToken.setToken("abcdef1234567890");
+        requestWithToken.setNewPassword("SecurePass@123");
+        requestWithToken.setConfirmPassword("SecurePass@123");
+
+        assertEquals("abcdef1234567890", requestWithToken.getTokenOrOtp());
+
+        com.cinewave.dto.ResetPasswordRequest requestWithOtp = new com.cinewave.dto.ResetPasswordRequest();
+        requestWithOtp.setOtp("654321");
+        assertEquals("654321", requestWithOtp.getTokenOrOtp());
+    }
 }

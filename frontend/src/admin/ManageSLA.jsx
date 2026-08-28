@@ -63,7 +63,7 @@ const ManageSLA = () => {
           <strong style={{ fontSize: '1.5rem', color: '#0A192F' }}>
             10 Minutes
           </strong>
-          <span style={{ fontSize: '0.75rem', color: '#D97706', display: 'block', marginTop: '4px' }}>Automated staff alert threshold</span>
+          <span style={{ fontSize: '0.75rem', color: '#D97706', display: 'block', marginTop: '4px' }}>Automated alert threshold</span>
         </div>
 
         <div className="card" style={{ padding: '1.25rem', borderLeft: '4px solid #10B981' }}>

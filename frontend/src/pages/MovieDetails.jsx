@@ -8,7 +8,9 @@ import reviewService from '../services/reviewService';
 import { useAuth } from '../context/AuthContext';
 import ShowCard from '../components/ShowCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
 import Modal from '../components/Modal';
+import { getOfficialPoster, getOfficialBanner, getFallbackPoster } from '../utils/movieAssets';
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -19,6 +21,7 @@ const MovieDetails = () => {
   const [reviews, setReviews] = useState([]);
   const [inWishlist, setInWishlist] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Review Modal state
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -26,35 +29,37 @@ const MovieDetails = () => {
   const [comment, setComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
 
-  useEffect(() => {
-    const fetchMovieDetails = async () => {
-      setLoading(true);
-      try {
-        const [movieData, showsData, reviewsData] = await Promise.all([
-          movieService.getMovieById(id),
-          showService.getShowsByMovie(id),
-          reviewService.getMovieReviews(id)
-        ]);
+  const fetchMovieDetails = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [movieData, showsData, reviewsData] = await Promise.all([
+        movieService.getMovieById(id),
+        showService.getShowsByMovie(id),
+        reviewService.getMovieReviews(id)
+      ]);
 
-        setMovie(movieData);
-        setShows(showsData || []);
-        setReviews(reviewsData || []);
+      setMovie(movieData);
+      setShows(showsData || []);
+      setReviews(reviewsData || []);
 
-        if (isAuthenticated) {
-          try {
-            const isFav = await wishlistService.checkWishlist(id);
-            setInWishlist(isFav);
-          } catch {
-            // Ignore
-          }
+      if (isAuthenticated) {
+        try {
+          const isFav = await wishlistService.checkWishlist(id);
+          setInWishlist(isFav);
+        } catch {
+          // Ignore
         }
-      } catch (err) {
-        console.error('Failed to fetch movie details', err);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch movie details', err);
+      setError(err.response?.data?.message || 'No internet connection. Please check your network and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchMovieDetails();
   }, [id, isAuthenticated]);
 
@@ -100,6 +105,13 @@ const MovieDetails = () => {
   };
 
   if (loading) return <LoadingSpinner text="Loading movie details..." />;
+  if (error && !movie) {
+    return (
+      <div className="container" style={{ padding: '4rem 1.5rem', maxWidth: '640px' }}>
+        <ErrorMessage message={error} onRetry={fetchMovieDetails} />
+      </div>
+    );
+  }
   if (!movie) return <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center' }}>Movie not found.</div>;
 
   return (
@@ -117,10 +129,10 @@ const MovieDetails = () => {
         <div style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: `url(${movie.posterUrl})`,
+          backgroundImage: `url(${getOfficialBanner(movie)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.12,
+          opacity: 0.16,
           filter: 'blur(30px)',
           pointerEvents: 'none'
         }} />
@@ -133,10 +145,14 @@ const MovieDetails = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2.5rem', alignItems: 'flex-start' }}>
             
             {/* Poster Card */}
-            <div style={{ maxWidth: '300px', width: '100%', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+            <div style={{ maxWidth: '300px', width: '100%', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: '#0A192F' }}>
               <img
-                src={movie.posterUrl}
+                src={getOfficialPoster(movie)}
                 alt={movie.title}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = getFallbackPoster(movie?.title);
+                }}
                 style={{ width: '100%', height: '420px', objectFit: 'cover' }}
               />
             </div>

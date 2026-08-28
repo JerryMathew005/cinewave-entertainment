@@ -44,7 +44,7 @@ const ManageUsers = () => {
           Manage System Users & Roles
         </h1>
         <p style={{ color: '#64748B', fontSize: '0.95rem', marginTop: '4px' }}>
-          Assign operational roles (CUSTOMER, STAFF, ADMIN) to user accounts.
+          Manage registered user accounts and administrator privileges (Customer, Admin).
         </p>
       </div>
 
@@ -59,7 +59,7 @@ const ManageUsers = () => {
                 <th>Full Name</th>
                 <th>Email Address</th>
                 <th>Phone</th>
-                <th>Current Role</th>
+                <th>Account Role</th>
                 <th>Modify Role</th>
               </tr>
             </thead>
@@ -74,23 +74,21 @@ const ManageUsers = () => {
                   <td>{u.phone || 'N/A'}</td>
                   <td>
                     <span className={`badge ${
-                      u.role === 'ADMIN' ? 'badge-danger' :
-                      u.role === 'STAFF' ? 'badge-warning' : 'badge-primary'
-                    }`}>
-                      {u.role}
+                      u.role === 'ADMIN' ? 'badge-warning' : 'badge-primary'
+                    }`} style={{ fontWeight: '700' }}>
+                      {u.role === 'ADMIN' ? 'Admin' : 'Customer'}
                     </span>
                   </td>
                   <td>
                     <select
-                      value={u.role}
+                      value={u.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER'}
                       disabled={updatingId === u.id}
                       onChange={(e) => handleRoleChange(u.id, e.target.value)}
                       className="form-select"
                       style={{ width: 'auto', padding: '0.3rem 0.6rem', fontSize: '0.8125rem' }}
                     >
-                      <option value="CUSTOMER">CUSTOMER</option>
-                      <option value="STAFF">STAFF</option>
-                      <option value="ADMIN">ADMIN</option>
+                      <option value="CUSTOMER">Customer</option>
+                      <option value="ADMIN">Admin</option>
                     </select>
                   </td>
                 </tr>

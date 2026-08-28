@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Film, Lock, Mail, User, Shield, Briefcase } from 'lucide-react';
+import { Film, Lock, Mail, User, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -88,15 +88,15 @@ const Login = () => {
               className="btn btn-secondary btn-sm"
               style={{ fontSize: '0.75rem', padding: '6px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
-              <User size={13} /> Customer Demo
+              <User size={13} color="#0284C7" /> Customer Demo
             </button>
             <button
               type="button"
-              onClick={() => fillDemo('staff@cinewave.com', 'Staff@123')}
+              onClick={() => fillDemo('jerrymathew987@gmail.com', 'Admin@123')}
               className="btn btn-secondary btn-sm"
               style={{ fontSize: '0.75rem', padding: '6px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
-              <Briefcase size={13} /> Staff Demo
+              <Shield size={13} color="#D97706" /> Admin Demo
             </button>
           </div>
         </div>

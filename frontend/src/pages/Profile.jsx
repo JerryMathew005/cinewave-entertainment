@@ -14,8 +14,7 @@ import {
   Loader2,
   Lock,
   ArrowRight,
-  ShieldCheck,
-  Briefcase
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import userService from '../services/userService';
@@ -184,7 +183,7 @@ const Profile = () => {
 
   const userRole = profile?.role || authUser?.role || 'CUSTOMER';
   const isAdmin = userRole === 'ADMIN';
-  const isStaff = userRole === 'STAFF';
+  const roleDisplayName = isAdmin ? 'Admin' : 'Customer';
 
   return (
     <div className="container" style={{ padding: '3rem 1.5rem', maxWidth: '720px' }}>
@@ -226,8 +225,6 @@ const Profile = () => {
             borderRadius: '50%',
             background: isAdmin
               ? 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)'
-              : isStaff
-              ? 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)'
               : 'linear-gradient(135deg, #0284C7 0%, #38BDF8 100%)',
             color: '#FFFFFF',
             display: 'flex',
@@ -249,15 +246,15 @@ const Profile = () => {
               <h1 style={{ fontSize: '1.85rem', color: '#0A192F', margin: 0, fontWeight: '800' }}>
                 {profile?.name}
               </h1>
-              <span className={`badge ${isAdmin ? 'badge-warning' : isStaff ? 'badge-info' : 'badge-primary'}`} style={{ fontSize: '0.75rem' }}>
-                {userRole}
+              <span className={`badge ${isAdmin ? 'badge-warning' : 'badge-primary'}`} style={{ fontSize: '0.75rem', fontWeight: '700' }}>
+                {roleDisplayName}
               </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.35rem', color: '#64748B', fontSize: '0.85rem' }}>
               <span>Account ID: #{profile?.id}</span>
               <span>•</span>
-              <span>Username: @{profile?.name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</span>
+              <span>Account Type: {isAdmin ? 'System Administrator' : 'Customer Account'}</span>
             </div>
           </div>
         </div>
@@ -289,16 +286,14 @@ const Profile = () => {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.875rem 1rem', backgroundColor: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
             <div style={{ backgroundColor: isAdmin ? '#FEF3C7' : '#E0F2FE', padding: '8px', borderRadius: '8px', color: isAdmin ? '#D97706' : '#0284C7' }}>
-              {isAdmin ? <ShieldAlert size={18} /> : isStaff ? <Briefcase size={18} /> : <Shield size={18} />}
+              {isAdmin ? <ShieldAlert size={18} /> : <Shield size={18} />}
             </div>
             <div style={{ flex: 1 }}>
-              <span style={{ fontSize: '0.75rem', color: '#64748B', display: 'block', fontWeight: '500' }}>Access Privileges</span>
+              <span style={{ fontSize: '0.75rem', color: '#64748B', display: 'block', fontWeight: '500' }}>Account Privilege & Role</span>
               <strong style={{ fontSize: '0.95rem', color: '#0A192F' }}>
                 {isAdmin
-                  ? 'Full System Administration'
-                  : isStaff
-                  ? 'Cinema Operations & Ticket Processing'
-                  : 'Standard Customer Booking'}
+                  ? 'Full System Administration (Admin)'
+                  : 'Standard Customer Booking (Customer)'}
               </strong>
             </div>
           </div>
@@ -334,7 +329,7 @@ const Profile = () => {
           paddingTop: '1.5rem'
         }}>
           
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <button
               onClick={handleOpenEdit}
               className="btn btn-secondary btn-sm"
@@ -350,30 +345,46 @@ const Profile = () => {
             >
               <KeyRound size={15} /> Change Password
             </button>
+
+            <Link
+              to="/forgot-password"
+              className="btn btn-secondary btn-sm"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0284C7', textDecoration: 'none' }}
+              title="Request password reset link via email"
+            >
+              <Lock size={15} /> Forgot Password?
+            </Link>
           </div>
 
-          <div>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {isAdmin ? (
               <Link
                 to="/admin"
                 className="btn btn-warning btn-sm"
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '700' }}
               >
-                <Shield size={16} /> Go to Admin Dashboard <ArrowRight size={14} />
+                <Shield size={16} /> Admin Dashboard <ArrowRight size={14} />
               </Link>
             ) : (
-              <Link
-                to="/my-bookings"
-                className="btn btn-primary btn-sm"
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <Ticket size={16} /> My Bookings
-              </Link>
+              <>
+                <Link
+                  to="/wishlist"
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  My Wishlist
+                </Link>
+                <Link
+                  to="/my-bookings"
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Ticket size={16} /> My Bookings
+                </Link>
+              </>
             )}
           </div>
-
         </div>
-
       </div>
 
       {/* Edit Profile Modal */}
@@ -517,28 +528,55 @@ const Profile = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.75rem' }}>
-            <button
-              type="button"
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: '1.75rem',
+            paddingTop: '1rem',
+            borderTop: '1px solid #E2E8F0',
+            flexWrap: 'wrap',
+            gap: '10px'
+          }}>
+            <Link
+              to="/forgot-password"
               onClick={() => setPwdModalOpen(false)}
-              className="btn btn-secondary"
+              style={{
+                color: '#0284C7',
+                fontSize: '0.85rem',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={pwdLoading}
-              className="btn btn-primary"
-            >
-              {pwdLoading ? (
-                <>
-                  <Loader2 size={16} className="spinner" style={{ animation: 'spin 1s linear infinite' }} />
-                  Updating Password...
-                </>
-              ) : (
-                'Save New Password'
-              )}
-            </button>
+              Forgot your current password? Reset via email &rarr;
+            </Link>
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={() => setPwdModalOpen(false)}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={pwdLoading}
+                className="btn btn-primary"
+              >
+                {pwdLoading ? (
+                  <>
+                    <Loader2 size={16} className="spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                    Updating Password...
+                  </>
+                ) : (
+                  'Save New Password'
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </Modal>

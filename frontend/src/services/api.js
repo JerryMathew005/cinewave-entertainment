@@ -18,9 +18,19 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to attach JWT token
+// Request interceptor to attach JWT token and check offline state
 api.interceptors.request.use(
   (config) => {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const offlineError = new Error('No internet connection. Please check your network and try again.');
+      offlineError.isNetworkError = true;
+      offlineError.code = 'ERR_NETWORK';
+      offlineError.response = {
+        status: 0,
+        data: { message: 'No internet connection. Please check your network and try again.' }
+      };
+      return Promise.reject(offlineError);
+    }
     const token = localStorage.getItem('cinewave_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -30,12 +40,31 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle unauthenticated 401 responses
+// Response interceptor to handle unauthenticated 401 responses and network interruptions
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear token if expired or unauthorized
+    const isNetworkError =
+      !error.response ||
+      error.code === 'ERR_NETWORK' ||
+      error.code === 'ECONNABORTED' ||
+      error.message === 'Network Error' ||
+      (typeof navigator !== 'undefined' && !navigator.onLine);
+
+    if (isNetworkError) {
+      error.isNetworkError = true;
+      const friendlyMsg = 'No internet connection. Please check your network and try again.';
+      error.userMessage = friendlyMsg;
+      if (!error.response) {
+        error.response = {
+          status: 0,
+          data: { message: friendlyMsg }
+        };
+      } else if (!error.response.data || !error.response.data.message) {
+        error.response.data = { ...error.response.data, message: friendlyMsg };
+      }
+    } else if (error.response && error.response.status === 401) {
+      // Clear token only when truly unauthorized (401), never on network drops
       if (!window.location.pathname.includes('/login')) {
         localStorage.removeItem('cinewave_token');
         localStorage.removeItem('cinewave_user');

@@ -179,14 +179,13 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Account Role</label>
+            <label className="form-label">Account Type</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
               className="form-select"
             >
-              <option value="CUSTOMER">Customer (Movie Booking)</option>
-              <option value="STAFF">Staff (Operations & Ticket Processing)</option>
+              <option value="CUSTOMER">Customer (Movie Booking & Experiences)</option>
             </select>
           </div>
 

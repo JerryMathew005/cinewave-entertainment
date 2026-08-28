@@ -642,3 +642,72 @@ a {
     padding: 0 1rem;
   }
 }
+
+/* ================= FLOATING AI ASSISTANT ================= */
+.cinewave-ai-fab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0A192F 0%, #0F2744 100%);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  color: #FFFFFF;
+  padding: 6px 14px 6px 8px;
+  border-radius: 9999px;
+  box-shadow: 0 10px 25px -5px rgba(10, 25, 47, 0.45), 0 0 16px rgba(14, 165, 233, 0.18);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  user-select: none;
+}
+
+.cinewave-ai-fab:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 14px 28px -4px rgba(10, 25, 47, 0.55), 0 0 24px rgba(56, 189, 248, 0.32);
+}
+
+.cinewave-ai-fab:active {
+  transform: translateY(0);
+}
+
+.cinewave-ai-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+  flex-shrink: 0;
+}
+
+.cinewave-ai-badge-dot {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 9px;
+  height: 9px;
+  background-color: #10B981;
+  border-radius: 50%;
+  border: 1.5px solid #0A192F;
+}
+
+.cinewave-ai-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #F8FAFC;
+  letter-spacing: 0.2px;
+}
+
+@media (max-width: 640px) {
+  .cinewave-ai-fab {
+    padding: 6px;
+    border-radius: 50%;
+  }
+  .cinewave-ai-label {
+    display: none;
+  }
+}
+

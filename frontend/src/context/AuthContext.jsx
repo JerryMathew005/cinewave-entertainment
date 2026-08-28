@@ -16,10 +16,16 @@ export const AuthProvider = ({ children }) => {
           const profile = await authService.getCurrentUser();
           setUser(profile);
           localStorage.setItem('cinewave_user', JSON.stringify(profile));
-        } catch {
-          authService.logout();
-          setUser(null);
-          setToken(null);
+        } catch (err) {
+          // Invalidate session only if token was rejected as unauthorized (401/403)
+          // Never log out the user on temporary network interruption or offline state
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            authService.logout();
+            setUser(null);
+            setToken(null);
+          } else {
+            console.warn('Network unreachable during auth initialization; retaining existing local session');
+          }
         }
       }
       setLoading(false);

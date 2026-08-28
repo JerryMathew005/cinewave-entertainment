@@ -1,6 +1,7 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Film, Calendar, Clock, MapPin, Printer, CheckCircle } from 'lucide-react';
+import { getOfficialPoster, getFallbackPoster } from '../utils/movieAssets';
 
 const Ticket = ({ booking }) => {
   if (!booking) return null;
@@ -15,6 +16,11 @@ const Ticket = ({ booking }) => {
     date: booking.show?.showDate,
     time: booking.show?.startTime,
     seats: booking.seats?.map((s) => s.seatNumber).join(','),
+  });
+
+  const posterSrc = getOfficialPoster({
+    title: booking.show?.movieTitle,
+    posterUrl: booking.show?.moviePoster
   });
 
   return (
@@ -52,8 +58,12 @@ const Ticket = ({ booking }) => {
             {/* Movie Poster */}
             <div style={{ width: '90px', height: '125px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#0A192F', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.15)' }}>
               <img
-                src={booking.show?.moviePoster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80'}
+                src={posterSrc}
                 alt={booking.show?.movieTitle}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = getFallbackPoster(booking.show?.movieTitle);
+                }}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>

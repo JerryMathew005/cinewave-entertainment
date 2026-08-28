@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Clock, Globe, Tv, Film } from 'lucide-react';
+import { getOfficialPoster, getFallbackPoster } from '../utils/movieAssets';
 
 const MovieCard = ({ movie }) => {
   if (!movie) return null;
@@ -22,13 +23,19 @@ const MovieCard = ({ movie }) => {
     }
   };
 
+  const posterSrc = getOfficialPoster(movie);
+
   return (
     <div className="card card-clickable" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Poster with overlays */}
       <div style={{ position: 'relative', width: '100%', height: '320px', backgroundColor: '#0A192F', overflow: 'hidden' }}>
         <img
-          src={movie.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80'}
+          src={posterSrc}
           alt={movie.title}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = getFallbackPoster(movie.title);
+          }}
           style={{
             width: '100%',
             height: '100%',

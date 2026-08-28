@@ -101,9 +101,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public Auth, Documentation, Health, Contact & Root
+                        // Public Auth, Documentation, Health, Contact, AI & Root
                         .requestMatchers("/", "/api/health").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/ai/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 

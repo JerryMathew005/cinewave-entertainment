@@ -62,7 +62,7 @@ const ManageBookings = () => {
         targetBooking.id,
         action,
         comment,
-        user?.name || 'Staff'
+        user?.name || 'Administrator'
       );
       setProcessModalOpen(false);
       fetchBookings();
@@ -273,7 +273,7 @@ const ManageBookings = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Staff Processing Notes / Comments</label>
+            <label className="form-label">Processing Notes / Comments</label>
             <textarea
               rows={3}
               className="form-textarea"

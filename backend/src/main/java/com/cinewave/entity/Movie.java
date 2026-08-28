@@ -34,6 +34,9 @@ public class Movie {
     @Column(name = "poster_url", length = 500)
     private String posterUrl;
 
+    @Column(name = "banner_url", length = 500)
+    private String bannerUrl;
+
     @Column(name = "trailer_url", length = 500)
     private String trailerUrl;
 
@@ -86,6 +89,9 @@ public class Movie {
 
     public String getPosterUrl() { return posterUrl; }
     public void setPosterUrl(String posterUrl) { this.posterUrl = posterUrl; }
+
+    public String getBannerUrl() { return bannerUrl; }
+    public void setBannerUrl(String bannerUrl) { this.bannerUrl = bannerUrl; }
 
     public String getTrailerUrl() { return trailerUrl; }
     public void setTrailerUrl(String trailerUrl) { this.trailerUrl = trailerUrl; }

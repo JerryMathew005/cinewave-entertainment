@@ -16,6 +16,7 @@ public interface ShowRepository extends JpaRepository<Show, Long> {
     List<Show> findByMovieIdAndShowDateGreaterThanEqualOrderByShowDateAscStartTimeAsc(Long movieId, LocalDate showDate);
     List<Show> findByScreen_Theatre_IdAndShowDateGreaterThanEqualOrderByShowDateAscStartTimeAsc(Long theatreId, LocalDate showDate);
     List<Show> findByStatus(ShowStatus status);
+    boolean existsByMovieIdAndScreenIdAndShowDateAndStartTime(Long movieId, Long screenId, LocalDate showDate, java.time.LocalTime startTime);
 
     @Query("SELECT s FROM Show s WHERE " +
            "(:movieId IS NULL OR s.movie.id = :movieId) AND " +

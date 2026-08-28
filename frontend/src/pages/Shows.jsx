@@ -6,6 +6,7 @@ import movieService from '../services/movieService';
 import theatreService from '../services/theatreService';
 import ShowCard from '../components/ShowCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
 
 const Shows = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,6 +15,7 @@ const Shows = () => {
   const [movies, setMovies] = useState([]);
   const [theatres, setTheatres] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Filters
   const [selectedMovieId, setSelectedMovieId] = useState(searchParams.get('movieId') || '');
@@ -50,22 +52,25 @@ const Shows = () => {
     fetchMetadata();
   }, []);
 
-  useEffect(() => {
-    const fetchShows = async () => {
-      setLoading(true);
-      try {
-        const params = { showDate: selectedDate };
-        if (selectedMovieId) params.movieId = selectedMovieId;
-        if (selectedTheatreId) params.theatreId = selectedTheatreId;
+  const fetchShows = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = { showDate: selectedDate };
+      if (selectedMovieId) params.movieId = selectedMovieId;
+      if (selectedTheatreId) params.theatreId = selectedTheatreId;
 
-        const data = await showService.getAllShows(params);
-        setShows(data || []);
-      } catch (err) {
-        console.error('Failed to fetch shows', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const data = await showService.getAllShows(params);
+      setShows(data || []);
+    } catch (err) {
+      console.error('Failed to fetch shows', err);
+      setError(err.response?.data?.message || 'No internet connection. Please check your network and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchShows();
   }, [selectedMovieId, selectedTheatreId, selectedDate]);
 
@@ -146,6 +151,8 @@ const Shows = () => {
       {/* Shows List */}
       {loading ? (
         <LoadingSpinner text="Fetching show schedules..." />
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchShows} />
       ) : shows.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3.5rem 1rem', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
           <p style={{ fontSize: '1.1rem', color: '#64748B', margin: 0 }}>

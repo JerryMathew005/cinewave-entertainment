@@ -22,7 +22,7 @@ public class Show {
     @JoinColumn(name = "screen_id", nullable = false)
     private Screen screen;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ShowTypeConverter.class)
     @Column(name = "show_type", nullable = false, length = 20)
     private ShowType showType = ShowType.REGULAR;
 

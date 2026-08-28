@@ -7,6 +7,7 @@ import bookingService from '../services/bookingService';
 import { useAuth } from '../context/AuthContext';
 import SeatGrid from '../components/SeatGrid';
 import BookingSummary from '../components/BookingSummary';
+import PaymentModal from '../components/PaymentModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -21,7 +22,8 @@ const SeatSelection = () => {
   const [breakdown, setBreakdown] = useState(null);
   const [couponCode, setCouponCode] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
-  const [proceedLoading, setProceedLoading] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -37,7 +39,7 @@ const SeatSelection = () => {
       setSeats(seatsData || []);
     } catch (err) {
       console.error('Failed to load show seats', err);
-      setError('Failed to load show and seat availability. Please try again.');
+      setError(err.response?.data?.message || 'Failed to load show and seat availability. Please check your network and try again.');
     } finally {
       setLoading(false);
     }
@@ -95,7 +97,7 @@ const SeatSelection = () => {
     }
   };
 
-  const handleProceedBooking = async () => {
+  const handleOpenPayment = () => {
     if (!isAuthenticated) {
       // Save current selection and redirect to login
       navigate('/login', { state: { from: `/seat-selection/${showId}` } });
@@ -103,31 +105,46 @@ const SeatSelection = () => {
     }
 
     if (!selectedSeats.length) {
-      alert('Please select at least one seat');
+      alert('Please select at least one seat before proceeding.');
       return;
     }
 
-    setProceedLoading(true);
+    setPaymentModalOpen(true);
+  };
+
+  const handleConfirmPayment = async () => {
+    setPaymentLoading(true);
     setError(null);
 
     try {
       const seatIds = selectedSeats.map((s) => s.id);
-      // US-001: Submit Ticket Request
-      const response = await bookingService.createBooking(showId, seatIds, couponCode);
-      // Redirect to confirmation page
-      navigate(`/booking-confirmation/${response.id}`);
+      // 1. Submit ticket booking request (PENDING)
+      const booking = await bookingService.createBooking(showId, seatIds, couponCode);
+      // 2. Complete payment confirmation (CONFIRMED + PAID)
+      const confirmed = await bookingService.confirmBooking(booking.id);
+      setPaymentModalOpen(false);
+      // 3. Redirect to official confirmation & ticket
+      navigate(`/booking-confirmation/${confirmed.id}`);
     } catch (err) {
-      console.error('Booking submission failed', err);
-      const msg = err.response?.data?.message || 'Failed to submit booking request. Please check seat availability.';
+      console.error('Booking submission or payment failed', err);
+      const msg = err.response?.data?.message || 'Failed to complete booking. Please check seat availability.';
       setError(msg);
+      setPaymentModalOpen(false);
       // Refresh seat layout to show updated booked seats
       fetchShowAndSeats();
     } finally {
-      setProceedLoading(false);
+      setPaymentLoading(false);
     }
   };
 
   if (loading) return <LoadingSpinner text="Loading auditorium seats..." />;
+  if (error && !show) {
+    return (
+      <div className="container" style={{ padding: '3rem 1.5rem', maxWidth: '640px' }}>
+        <ErrorMessage message={error} onRetry={fetchShowAndSeats} />
+      </div>
+    );
+  }
 
   return (
     <div className="container" style={{ padding: '2.5rem 1.5rem' }}>
@@ -185,13 +202,24 @@ const SeatSelection = () => {
             setCouponCode={setCouponCode}
             onApplyCoupon={handleApplyCoupon}
             couponLoading={couponLoading}
-            onProceed={handleProceedBooking}
-            proceedLoading={proceedLoading}
+            onProceed={handleOpenPayment}
+            proceedLoading={paymentLoading}
             disabled={selectedSeats.length === 0}
           />
         </div>
 
       </div>
+
+      {/* Demo / Test Payment Gateway Modal */}
+      <PaymentModal
+        isOpen={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        show={show}
+        selectedSeats={selectedSeats}
+        breakdown={breakdown}
+        onConfirmPayment={handleConfirmPayment}
+        loading={paymentLoading}
+      />
 
     </div>
   );

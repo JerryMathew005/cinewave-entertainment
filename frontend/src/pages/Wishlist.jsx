@@ -3,6 +3,7 @@ import { Heart, Trash2, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import wishlistService from '../services/wishlistService';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { getOfficialPoster, getFallbackPoster } from '../utils/movieAssets';
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -64,8 +65,12 @@ const Wishlist = () => {
             <div key={item.id} className="card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
               <div style={{ width: '70px', height: '95px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#0A192F', flexShrink: 0 }}>
                 <img
-                  src={item.movie?.posterUrl}
+                  src={getOfficialPoster(item.movie)}
                   alt={item.movie?.title}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = getFallbackPoster(item.movie?.title);
+                  }}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>

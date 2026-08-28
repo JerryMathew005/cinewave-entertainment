@@ -5,11 +5,13 @@ import MovieCard from '../components/MovieCard';
 import SearchBar from '../components/SearchBar';
 import FilterBar from '../components/FilterBar';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
 
 const Movies = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get('title') || '');
   const [selectedGenre, setSelectedGenre] = useState(searchParams.get('genre') || '');
@@ -19,25 +21,27 @@ const Movies = () => {
   const genres = ['Sci-Fi', 'Action', 'Drama', 'Adventure', 'Thriller', 'Animation'];
   const languages = ['English', 'Hindi', 'Spanish', 'Japanese'];
 
+  const fetchMovies = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = {};
+      if (searchQuery.trim()) params.title = searchQuery.trim();
+      if (selectedGenre) params.genre = selectedGenre;
+      if (selectedLanguage) params.language = selectedLanguage;
+      if (statusTab !== 'ALL') params.status = statusTab;
+
+      const data = await movieService.getAllMovies(params);
+      setMovies(data || []);
+    } catch (err) {
+      console.error('Failed to load movies', err);
+      setError(err.response?.data?.message || 'No internet connection. Please check your network and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchMovies = async () => {
-      setLoading(true);
-      try {
-        const params = {};
-        if (searchQuery.trim()) params.title = searchQuery.trim();
-        if (selectedGenre) params.genre = selectedGenre;
-        if (selectedLanguage) params.language = selectedLanguage;
-        if (statusTab !== 'ALL') params.status = statusTab;
-
-        const data = await movieService.getAllMovies(params);
-        setMovies(data || []);
-      } catch (err) {
-        console.error('Failed to load movies', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMovies();
   }, [searchQuery, selectedGenre, selectedLanguage, statusTab]);
 
@@ -107,6 +111,8 @@ const Movies = () => {
       {/* Movie Results */}
       {loading ? (
         <LoadingSpinner text="Searching movies..." />
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchMovies} />
       ) : movies.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '4rem 1rem', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
           <p style={{ fontSize: '1.1rem', color: '#64748B', marginBottom: '1rem' }}>No movies found matching your filters.</p>

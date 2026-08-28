@@ -5,7 +5,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "password_reset_tokens", indexes = {
-        @Index(name = "idx_reset_email", columnList = "email")
+        @Index(name = "idx_reset_email", columnList = "email"),
+        @Index(name = "idx_reset_token", columnList = "token")
 })
 public class PasswordResetToken {
 
@@ -15,6 +16,9 @@ public class PasswordResetToken {
 
     @Column(nullable = false, length = 100)
     private String email;
+
+    @Column(length = 100)
+    private String token;
 
     @Column(name = "otp_hash", nullable = false, length = 255)
     private String otpHash;
@@ -33,13 +37,18 @@ public class PasswordResetToken {
 
     public PasswordResetToken() {}
 
-    public PasswordResetToken(String email, String otpHash, LocalDateTime expiryTime) {
+    public PasswordResetToken(String email, String token, String otpHash, LocalDateTime expiryTime) {
         this.email = email;
+        this.token = token;
         this.otpHash = otpHash;
         this.expiryTime = expiryTime;
         this.used = false;
         this.attempts = 0;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public PasswordResetToken(String email, String otpHash, LocalDateTime expiryTime) {
+        this(email, null, otpHash, expiryTime);
     }
 
     @PrePersist
@@ -56,6 +65,9 @@ public class PasswordResetToken {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
 
     public String getOtpHash() { return otpHash; }
     public void setOtpHash(String otpHash) { this.otpHash = otpHash; }

@@ -139,7 +139,7 @@ const BookingSummary = ({
         className="btn btn-primary btn-lg"
         style={{ width: '100%', marginTop: '1.5rem' }}
       >
-        {proceedLoading ? 'Submitting Request...' : 'Proceed to Book'}
+        {proceedLoading ? 'Processing Payment...' : 'Proceed to Payment'}
       </button>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', marginTop: '1rem', color: '#64748B', fontSize: '0.75rem' }}>

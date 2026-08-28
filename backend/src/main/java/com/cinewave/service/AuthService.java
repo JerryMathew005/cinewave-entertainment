@@ -129,23 +129,81 @@ public class AuthService {
         int randomCode = 100000 + secureRandom.nextInt(900000);
         String otp = String.valueOf(randomCode);
 
-        // Store hashed OTP with 10-minute expiry
+        // Generate secure unique token for direct reset link
+        String secureToken = java.util.UUID.randomUUID().toString().replace("-", "") +
+                Long.toHexString(System.currentTimeMillis());
+
+        // Store hashed OTP and secure token with 15-minute expiry
         String otpHash = passwordEncoder.encode(otp);
-        LocalDateTime expiry = LocalDateTime.now().plusMinutes(10);
+        LocalDateTime expiry = LocalDateTime.now().plusMinutes(15);
 
-        PasswordResetToken token = new PasswordResetToken(cleanEmail, otpHash, expiry);
-        passwordResetTokenRepository.save(token);
+        PasswordResetToken tokenEntity = new PasswordResetToken(cleanEmail, secureToken, otpHash, expiry);
+        passwordResetTokenRepository.save(tokenEntity);
 
-        // Dispatch transactional email if registered user
+        // Dispatch real transactional reset email if registered user
         if (userRepository.existsByEmail(cleanEmail)) {
-            emailService.sendPasswordResetOtp(cleanEmail, otp);
+            emailService.sendPasswordResetEmail(cleanEmail, secureToken);
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "If that email is registered with CineWave, a 6-digit password reset code has been sent. It expires in 10 minutes.");
-        response.put("expiresInMinutes", 10);
+        response.put("message", "If that email address is registered with CineWave Entertainment, a password reset link has been sent to your inbox. The link is valid for 15 minutes.");
+        response.put("expiresInMinutes", 15);
+        response.put("emailDeliveryActive", emailService.isConfigured());
+
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> verifyResetToken(String email, String token) {
+        if ((email == null || email.trim().isEmpty()) && (token == null || token.trim().isEmpty())) {
+            throw new BadRequestException("Reset token or verification code is required.");
+        }
+
+        String cleanToken = (token != null) ? token.trim() : "";
+        String cleanEmail = (email != null) ? email.trim().toLowerCase() : "";
+
+        PasswordResetToken resetToken = null;
+
+        // 1. Try finding by secure token directly
+        if (!cleanToken.isEmpty()) {
+            resetToken = passwordResetTokenRepository
+                    .findTopByTokenAndUsedFalseOrderByCreatedAtDesc(cleanToken)
+                    .orElse(null);
+        }
+
+        // 2. If not found by direct token and email is present, check by email & OTP hash
+        if (resetToken == null && !cleanEmail.isEmpty()) {
+            PasswordResetToken candidate = passwordResetTokenRepository
+                    .findTopByEmailAndUsedFalseOrderByCreatedAtDesc(cleanEmail)
+                    .orElseThrow(() -> new BadRequestException("No active password reset request found for this email."));
+
+            if (passwordEncoder.matches(cleanToken, candidate.getOtpHash()) ||
+                    (candidate.getToken() != null && candidate.getToken().equals(cleanToken))) {
+                resetToken = candidate;
+            } else {
+                throw new BadRequestException("Invalid reset token or verification code.");
+            }
+        }
+
+        if (resetToken == null) {
+            throw new BadRequestException("Invalid or expired reset token.");
+        }
+
+        if (resetToken.isExpired()) {
+            throw new BadRequestException("Password reset link has expired. Please request a new link.");
+        }
+
+        if (resetToken.getAttempts() >= 5) {
+            throw new BadRequestException("Too many invalid attempts. This reset link has been invalidated.");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("valid", true);
+        result.put("email", resetToken.getEmail());
+        result.put("message", "Reset token is valid.");
+        return result;
     }
 
     @Transactional
@@ -189,39 +247,66 @@ public class AuthService {
             throw new BadRequestException("Password must be at least 6 characters long.");
         }
 
-        String cleanEmail = request.getEmail().trim().toLowerCase();
-        PasswordResetToken token = passwordResetTokenRepository
-                .findTopByEmailAndUsedFalseOrderByCreatedAtDesc(cleanEmail)
-                .orElseThrow(() -> new BadRequestException("No active password reset code found."));
+        String rawToken = request.getTokenOrOtp();
+        String cleanEmail = (request.getEmail() != null) ? request.getEmail().trim().toLowerCase() : "";
 
-        if (token.isExpired()) {
-            token.setUsed(true);
-            passwordResetTokenRepository.save(token);
-            throw new BadRequestException("Password reset code has expired. Please request a new one.");
+        if (rawToken.isEmpty() && cleanEmail.isEmpty()) {
+            throw new BadRequestException("Reset token or verification code is required.");
         }
 
-        if (token.getAttempts() >= 5) {
-            token.setUsed(true);
-            passwordResetTokenRepository.save(token);
-            throw new BadRequestException("Too many invalid attempts. Please request a new code.");
+        PasswordResetToken tokenEntity = null;
+
+        // 1. Try finding by secure token directly
+        if (!rawToken.isEmpty()) {
+            tokenEntity = passwordResetTokenRepository
+                    .findTopByTokenAndUsedFalseOrderByCreatedAtDesc(rawToken)
+                    .orElse(null);
         }
 
-        if (!passwordEncoder.matches(request.getOtp().trim(), token.getOtpHash())) {
-            token.setAttempts(token.getAttempts() + 1);
-            passwordResetTokenRepository.save(token);
-            throw new BadRequestException("Invalid verification code.");
+        // 2. If not found by direct token and email is supplied, check by email and OTP hash
+        if (tokenEntity == null && !cleanEmail.isEmpty()) {
+            PasswordResetToken candidate = passwordResetTokenRepository
+                    .findTopByEmailAndUsedFalseOrderByCreatedAtDesc(cleanEmail)
+                    .orElseThrow(() -> new BadRequestException("No active password reset request found for this email."));
+
+            if (passwordEncoder.matches(rawToken, candidate.getOtpHash()) ||
+                    (candidate.getToken() != null && candidate.getToken().equals(rawToken))) {
+                tokenEntity = candidate;
+            } else {
+                candidate.setAttempts(candidate.getAttempts() + 1);
+                passwordResetTokenRepository.save(candidate);
+                throw new BadRequestException("Invalid verification code or token.");
+            }
         }
+
+        if (tokenEntity == null) {
+            throw new BadRequestException("No active password reset request found.");
+        }
+
+        if (tokenEntity.isExpired()) {
+            tokenEntity.setUsed(true);
+            passwordResetTokenRepository.save(tokenEntity);
+            throw new BadRequestException("Password reset link has expired. Please request a new one.");
+        }
+
+        if (tokenEntity.getAttempts() >= 5) {
+            tokenEntity.setUsed(true);
+            passwordResetTokenRepository.save(tokenEntity);
+            throw new BadRequestException("Too many invalid attempts. Please request a new reset link.");
+        }
+
+        String userEmail = tokenEntity.getEmail();
 
         // Update user's password securely
-        User user = userRepository.findByEmail(cleanEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("No user found associated with email: " + cleanEmail));
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("No user found associated with email: " + userEmail));
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
-        // Invalidate OTP immediately to prevent reuse
-        token.setUsed(true);
-        passwordResetTokenRepository.save(token);
+        // Invalidate token immediately to prevent reuse
+        tokenEntity.setUsed(true);
+        passwordResetTokenRepository.save(tokenEntity);
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);

@@ -4,27 +4,34 @@ import { Film, Sparkles, Shield, Ticket, Star, ArrowRight, Play } from 'lucide-r
 import movieService from '../services/movieService';
 import MovieCard from '../components/MovieCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
+import { getOfficialPoster, getOfficialBanner, DEFAULT_MOVIE_BANNER } from '../utils/movieAssets';
 
 const Home = () => {
   const [nowShowing, setNowShowing] = useState([]);
   const [comingSoon, setComingSoon] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [showingRes, comingRes] = await Promise.all([
+        movieService.getNowShowing(),
+        movieService.getComingSoon()
+      ]);
+      setNowShowing(showingRes || []);
+      setComingSoon(comingRes || []);
+    } catch (err) {
+      console.error('Failed to load movies on home page', err);
+      setError(err.response?.data?.message || 'No internet connection. Please check your network and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [showingRes, comingRes] = await Promise.all([
-          movieService.getNowShowing(),
-          movieService.getComingSoon()
-        ]);
-        setNowShowing(showingRes || []);
-        setComingSoon(comingRes || []);
-      } catch (err) {
-        console.error('Failed to load movies on home page', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
@@ -34,7 +41,7 @@ const Home = () => {
     rating: 8.7,
     duration: 169,
     genre: 'Sci-Fi / Adventure',
-    posterUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80'
+    posterUrl: 'https://image.tmdb.org/t/p/w1280/xJHokMbljvjADYdit5fK5VQsXEG.jpg'
   };
 
   return (
@@ -127,10 +134,14 @@ const Home = () => {
                 border: '1px solid rgba(56, 189, 248, 0.3)',
                 backgroundColor: '#0F2744'
               }}>
-                <div style={{ height: '360px', position: 'relative' }}>
+                <div style={{ height: '360px', position: 'relative', backgroundColor: '#0A192F' }}>
                   <img
-                    src={heroMovie.posterUrl}
+                    src={getOfficialBanner(heroMovie) || getOfficialPoster(heroMovie)}
                     alt={heroMovie.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = DEFAULT_MOVIE_BANNER;
+                    }}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                   <div style={{
@@ -195,6 +206,8 @@ const Home = () => {
 
           {loading ? (
             <LoadingSpinner text="Fetching movies..." />
+          ) : error ? (
+            <ErrorMessage message={error} onRetry={fetchData} />
           ) : nowShowing.length === 0 ? (
             <p style={{ color: '#64748B' }}>No movies currently showing.</p>
           ) : (
@@ -250,7 +263,7 @@ const Home = () => {
               </div>
               <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Auto-Routed Support</h3>
               <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
-                IMAX, 3D, and Premium shows are automatically routed to dedicated specialist staff teams with 30-minute SLAs.
+                IMAX, 3D, and Premium shows are automatically routed to dedicated specialist operations teams with 30-minute SLAs.
               </p>
             </div>
           </div>

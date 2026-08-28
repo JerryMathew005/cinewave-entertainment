@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Film, Ticket, Bell, User, LogOut, Shield, Briefcase, Menu, X, Heart } from 'lucide-react';
+import { Film, Ticket, Bell, User, LogOut, Shield, Menu, X, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import notificationService from '../services/notificationService';
 
 const Navbar = () => {
-  const { user, isAuthenticated, isAdmin, isStaff, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
@@ -138,23 +138,6 @@ const Navbar = () => {
             </>
           )}
 
-          {isStaff && (
-            <Link to="/staff/dashboard" style={{
-              fontSize: '0.85rem',
-              fontWeight: '600',
-              color: '#38BDF8',
-              backgroundColor: 'rgba(2, 132, 199, 0.15)',
-              padding: '0.35rem 0.75rem',
-              borderRadius: '6px',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem'
-            }}>
-              <Briefcase size={14} /> Staff Portal
-            </Link>
-          )}
-
           {isAdmin && (
             <Link to="/admin" style={{
               fontSize: '0.85rem',
@@ -251,8 +234,18 @@ const Navbar = () => {
                     <div style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', marginBottom: '0.25rem' }}>
                       <p style={{ fontSize: '0.85rem', fontWeight: '700', color: '#FFFFFF', margin: 0 }}>{user?.name}</p>
                       <p style={{ fontSize: '0.75rem', color: '#94A3B8', margin: 0 }}>{user?.email}</p>
-                      <span style={{ display: 'inline-block', marginTop: '4px', fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', padding: '2px 6px', borderRadius: '4px', backgroundColor: '#0284C7', color: '#FFFFFF' }}>
-                        {user?.role}
+                      <span style={{
+                        display: 'inline-block',
+                        marginTop: '4px',
+                        fontSize: '0.65rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        backgroundColor: isAdmin ? '#D97706' : '#0284C7',
+                        color: '#FFFFFF'
+                      }}>
+                        {isAdmin ? 'Admin' : 'Customer'}
                       </span>
                     </div>
 
@@ -333,7 +326,6 @@ const Navbar = () => {
                 <Link to="/notifications" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFFFFF', padding: '0.5rem 0' }}>Notifications ({unreadCount})</Link>
               </>
             )}
-            {isStaff && <Link to="/staff/dashboard" onClick={() => setMobileMenuOpen(false)} style={{ color: '#38BDF8', padding: '0.5rem 0' }}>Staff Dashboard</Link>}
             {isAdmin && <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ color: '#F59E0B', padding: '0.5rem 0' }}>Admin Dashboard</Link>}
           </div>
         </div>
