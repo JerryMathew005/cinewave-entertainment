@@ -217,3 +217,29 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE,
     INDEX idx_reviews_movie (movie_id)
 ) ENGINE=InnoDB;
+
+-- 15. Password Reset Tokens Table (Secure Hashed OTP)
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    otp_hash VARCHAR(255) NOT NULL,
+    expiry_time TIMESTAMP NOT NULL,
+    used BOOLEAN NOT NULL DEFAULT FALSE,
+    attempts INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_pwd_reset_email (email, used)
+) ENGINE=InnoDB;
+
+-- 16. Contact Messages Table (Public User Inquiries)
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    subject VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_contact_email (email),
+    INDEX idx_contact_read (is_read)
+) ENGINE=InnoDB;
+
