@@ -81,30 +81,22 @@ const Login = () => {
           <span style={{ fontSize: '0.75rem', color: '#0369A1', fontWeight: '700', textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>
             ⚡ Quick Demo Accounts:
           </span>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.35rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
             <button
               type="button"
               onClick={() => fillDemo('customer@cinewave.com', 'Customer@123')}
               className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.7rem', padding: '4px 6px', display: 'flex', alignItems: 'center', gap: '3px' }}
+              style={{ fontSize: '0.75rem', padding: '6px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
-              <User size={12} /> Customer
+              <User size={13} /> Customer Demo
             </button>
             <button
               type="button"
               onClick={() => fillDemo('staff@cinewave.com', 'Staff@123')}
               className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.7rem', padding: '4px 6px', display: 'flex', alignItems: 'center', gap: '3px' }}
+              style={{ fontSize: '0.75rem', padding: '6px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
-              <Briefcase size={12} /> Staff
-            </button>
-            <button
-              type="button"
-              onClick={() => fillDemo('admin@cinewave.com', 'Admin@123')}
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.7rem', padding: '4px 6px', display: 'flex', alignItems: 'center', gap: '3px' }}
-            >
-              <Shield size={12} /> Admin
+              <Briefcase size={13} /> Staff Demo
             </button>
           </div>
         </div>

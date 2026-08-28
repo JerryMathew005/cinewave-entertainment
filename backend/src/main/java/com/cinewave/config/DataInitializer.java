@@ -65,24 +65,11 @@ public class DataInitializer implements CommandLineRunner {
                 }
         );
 
-        // 2. Ensure Secondary Demo Admin User
-        userRepository.findByEmail("admin@cinewave.com").ifPresentOrElse(
-                user -> {
-                    user.setPassword(passwordEncoder.encode("Admin@123"));
-                    user.setRole(Role.ADMIN);
-                    userRepository.save(user);
-                },
-                () -> {
-                    User admin = new User(
-                            "System Administrator",
-                            "admin@cinewave.com",
-                            passwordEncoder.encode("Admin@123"),
-                            "+1 (555) 019-2831",
-                            Role.ADMIN
-                    );
-                    userRepository.save(admin);
-                }
-        );
+        // 2. Demote any legacy demo admin if present so only jerrymathew987@gmail.com has ADMIN
+        userRepository.findByEmail("admin@cinewave.com").ifPresent(user -> {
+            user.setRole(Role.STAFF);
+            userRepository.save(user);
+        });
 
         // 3. Ensure Staff User
         userRepository.findByEmail("staff@cinewave.com").ifPresentOrElse(

@@ -128,6 +128,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/bookings/staff/**").hasAnyRole("STAFF", "ADMIN")
 
                         // Customer / Authenticated Endpoints
+                        .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/bookings/**").authenticated()
                         .requestMatchers("/api/notifications/**").authenticated()
                         .requestMatchers("/api/wishlist/**").authenticated()

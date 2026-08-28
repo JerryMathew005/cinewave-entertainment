@@ -48,6 +48,14 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
   };
 
+  const updateUser = (updatedData) => {
+    setUser((prev) => {
+      const merged = { ...prev, ...updatedData };
+      localStorage.setItem('cinewave_user', JSON.stringify(merged));
+      return merged;
+    });
+  };
+
   const isAdmin = user?.role === 'ADMIN';
   const isStaff = user?.role === 'STAFF' || isAdmin;
   const isCustomer = user?.role === 'CUSTOMER';
@@ -61,6 +69,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        updateUser,
         isAdmin,
         isStaff,
         isCustomer,
